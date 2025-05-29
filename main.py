@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from collections import defaultdict
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///partidas.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://rachaipc_user:8gSyegzmA2lEnxg9XgbJNWdiAQGxQxXT@dpg-d0sckfre5dus73elh450-a/rachaipc'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
