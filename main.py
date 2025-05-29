@@ -111,6 +111,9 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
+        Partida.query.delete()
+        db.session.commit()
+
         # Popular a tabela de partidas apenas se estiver vazia
         if not Partida.query.first():
             jogos = [
