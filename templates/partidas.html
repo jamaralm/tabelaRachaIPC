@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Partidas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Lista de Partidas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Jogo</th>
+                <th>Horário</th>
+                <th>Time A</th>
+                <th>Time B</th>
+                <th>Resultado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partidas %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ p.horario }}</td>
+                    <td>{{ p.time_a }}</td>
+                    <td>{{ p.time_b }}</td>
+                    <td>
+                        {% if p.resultado %}
+                            {{ p.resultado.gols1 }} x {{ p.resultado.gols2 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('index') }}">Voltar</a>
+</body>
+</html>

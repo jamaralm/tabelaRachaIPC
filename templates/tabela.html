@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Tabela de Pontos Corridos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🏆 Tabela de Classificação</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>P</th>
+                <th>J</th>
+                <th>V</th>
+                <th>E</th>
+                <th>D</th>
+                <th>GP</th>
+                <th>GC</th>
+                <th>SG</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for time_info in classificacao %}
+                {% set index = loop.index %}
+                {% set brasoes = {
+                    'Relâmpago': '⚡',
+                    'Fogo': '🔥',
+                    'Esmeralda': '💎',
+                    'Dourada': '👑',
+                    'Imperial': '🦁'
+                } %}
+                {% set nome = time_info[0] %}
+                {% set stats = time_info[1] %}
+                {% set classe = '' %}
+                {% if loop.first %}
+                    {% set classe = 'primeiro' %}
+                {% elif loop.last %}
+                    {% set classe = 'ultimo' %}
+                {% endif %}
+                <tr class="{{ classe }}">
+                    <td>{{ index }}</td>
+                    <td>{{ brasoes[nome] }} {{ nome }}</td>
+                    <td>{{ stats.P }}</td>
+                    <td>{{ stats.J }}</td>
+                    <td>{{ stats.V }}</td>
+                    <td>{{ stats.E }}</td>
+                    <td>{{ stats.D }}</td>
+                    <td>{{ stats.GP }}</td>
+                    <td>{{ stats.GC }}</td>
+                    <td>{{ stats.SG }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('index') }}">➕ Adicionar novo resultado</a>
+</body>
+</html>
