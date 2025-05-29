@@ -116,22 +116,19 @@ if __name__ == '__main__':
             jogos = [
                 # Turno 1
                 ("20:00", "Fogo", "Dourada"),
-                ("20:08", "Fogo", "Dourada"),
-                ("20:16", "Esmeralda", "Dourada"),
+                ("20:08", "Esmeralda", "Dourada"),
+                ("20:16", "Fogo", "Esmeralda"),
                 ("20:24", "Esmeralda", "Relâmpago"),
-                ("20:32", "Fogo", "Relâmpago"),
-                ("20:40", "Esmeralda", "Fogo"),
-                ("20:48", "Dourada", "Relâmpago"),
-                ("20:56", "Esmeralda", "Dourada"),
+                ("20:32", "Relâmpago", "Dourada"),
+                ("20:40", "Relâmpago", "Fogo"),
+
                 # Turno 2
-                ("21:04", "Dourada", "Fogo"),
-                ("21:12", "Dourada", "Fogo"),
-                ("21:20", "Dourada", "Esmeralda"),
-                ("21:28", "Relâmpago", "Esmeralda"),
-                ("21:36", "Relâmpago", "Fogo"),
-                ("21:44", "Fogo", "Esmeralda"),
-                ("21:52", "Relâmpago", "Dourada"),
-                ("22:00", "Dourada", "Esmeralda"),
+                ("20:48", "Dourada", "Fogo"),
+                ("20:56", "Dourada", "Esmeralda"),
+                ("21:04", "Esmeralda", "Fogo"),
+                ("21:12", "Relâmpago", "Esmeralda"),
+                ("21:20", "Dourada", "Relâmpago"),
+                ("21:28", "Fogo", "Relâmpago"),
             ]
             for horario, time_a, time_b in jogos:
                 partida = Partida(horario=horario, time_a=time_a, time_b=time_b)
