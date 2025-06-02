@@ -1,71 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
+from utils.db import config_database, create_tables, clear_partida_table,clear_resultado_table
+from utils.table_functions import calculate_table
 from flask_sqlalchemy import SQLAlchemy
-from collections import defaultdict
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://rachaipc_user:8gSyegzmA2lEnxg9XgbJNWdiAQGxQxXT@dpg-d0sckfre5dus73elh450-a.oregon-postgres.render.com/rachaipc'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+config_database(app)
 db = SQLAlchemy(app)
 
 # Times pré-cadastrados
 times = ["Relâmpago", "Fogo", "Esmeralda", "Dourada", "Imperial"]
 
-# Modelo de resultado
-class Resultado(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    time1 = db.Column(db.String(50), nullable=False)
-    time2 = db.Column(db.String(50), nullable=False)
-    gols1 = db.Column(db.Integer, nullable=False)
-    gols2 = db.Column(db.Integer, nullable=False)
-
-# Modelo de partida
-class Partida(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    horario = db.Column(db.String(10), nullable=False)
-    time_a = db.Column(db.String(50), nullable=False)
-    time_b = db.Column(db.String(50), nullable=False)
-    resultado_id = db.Column(db.Integer, db.ForeignKey('resultado.id'), nullable=True)
-
-    resultado = db.relationship('Resultado', backref='partida', uselist=False)
-
-# Função para calcular a tabela de classificação
-def calcular_tabela():
-    partidas = Resultado.query.all()
-
-    tabela = defaultdict(lambda: {
-        "P": 0, "J": 0, "V": 0, "E": 0, "D": 0,
-        "GP": 0, "GC": 0, "SG": 0
-    })
-
-    for r in partidas:
-        t1, t2 = r.time1, r.time2
-        g1, g2 = r.gols1, r.gols2
-
-        tabela[t1]['J'] += 1
-        tabela[t2]['J'] += 1
-        tabela[t1]['GP'] += g1
-        tabela[t1]['GC'] += g2
-        tabela[t2]['GP'] += g2
-        tabela[t2]['GC'] += g1
-
-        if g1 > g2:
-            tabela[t1]['V'] += 1
-            tabela[t2]['D'] += 1
-            tabela[t1]['P'] += 3
-        elif g2 > g1:
-            tabela[t2]['V'] += 1
-            tabela[t1]['D'] += 1
-            tabela[t2]['P'] += 3
-        else:
-            tabela[t1]['E'] += 1
-            tabela[t2]['E'] += 1
-            tabela[t1]['P'] += 1
-            tabela[t2]['P'] += 1
-
-    for time in tabela:
-        tabela[time]['SG'] = tabela[time]['GP'] - tabela[time]['GC']
-
-    return sorted(tabela.items(), key=lambda x: (x[1]['P'], x[1]['SG'], x[1]['GP']), reverse=True)
+Resultado, Partida = create_tables(db)
 
 # Página inicial com partidas pendentes
 @app.route('/')
@@ -86,7 +31,6 @@ def adicionar_resultado():
         db.session.add(novo_resultado)
         db.session.commit()
 
-        # Associar resultado à partida correspondente
         partida = Partida.query.filter_by(time_a=time1, time_b=time2, resultado_id=None).first()
         if partida:
             partida.resultado_id = novo_resultado.id
@@ -97,7 +41,7 @@ def adicionar_resultado():
 # Ver tabela de classificação
 @app.route('/tabela')
 def tabela():
-    classificacao = calcular_tabela()
+    classificacao = calculate_table(Resultado)
     return render_template('tabela.html', classificacao=classificacao)
 
 # Ver todas as partidas
@@ -106,32 +50,40 @@ def ver_partidas():
     partidas = Partida.query.all()
     return render_template('partidas.html', partidas=partidas)
 
+@app.route('/limparResultados', methods=['GET', 'POST'])
+def limpar_resultados():
+    if request.method == 'POST':
+        clear_resultado_table(db, Resultado)
+        return redirect('/tabela')
+    return render_template('clear_scoreboard.html')
+
+@app.route('/limparPartidas', methods=['GET', 'POST'])
+def limpar_partidas():
+    if request.method == 'POST':
+        clear_partida_table(db, Partida)
+        return redirect("/partidas")
+    return render_template('clear_matches.html')
+
 # Inicialização
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-        Partida.query.delete()
-        db.session.commit()
-
         # Popular a tabela de partidas apenas se estiver vazia
         if not Partida.query.first():
             jogos = [
-                # Turno 1
-                ("20:00", "Fogo", "Dourada"),
-                ("20:08", "Esmeralda", "Dourada"),
-                ("20:16", "Fogo", "Esmeralda"),
-                ("20:24", "Esmeralda", "Relâmpago"),
-                ("20:32", "Relâmpago", "Dourada"),
-                ("20:40", "Relâmpago", "Fogo"),
-
-                # Turno 2
-                ("20:48", "Dourada", "Fogo"),
-                ("20:56", "Dourada", "Esmeralda"),
-                ("21:04", "Esmeralda", "Fogo"),
-                ("21:12", "Relâmpago", "Esmeralda"),
-                ("21:20", "Dourada", "Relâmpago"),
-                ("21:28", "Fogo", "Relâmpago"),
+                ("20:00", "Fogo", "Dourada"),         # 1 Fogo, Dourada
+                ("20:08", "Esmeralda", "Fogo"),       # 2 Esmeralda, Fogo (Fogo 2 seguidas)
+                ("20:16", "Dourada", "Esmeralda"),    # 3 Dourada, Esmeralda (Dourada 2 seguidas)
+                ("20:24", "Relâmpago", "Dourada"),    # 4 Relâmpago, Dourada (Dourada 3? Não, intervalo)
+                ("20:32", "Relâmpago", "Fogo"),       # 5 Relâmpago, Fogo (Fogo 3? Não, intervalo)
+                ("20:40", "Esmeralda", "Relâmpago"),  # 6 Esmeralda, Relâmpago (Relâmpago 2 seguidas)
+                ("20:48", "Fogo", "Esmeralda"),       # 7 Fogo, Esmeralda (Fogo 2 seguidas)
+                ("20:56", "Dourada", "Fogo"),         # 8 Dourada, Fogo (Fogo 3? Não, intervalo)
+                ("21:04", "Relâmpago", "Esmeralda"),  # 9 Relâmpago, Esmeralda (Relâmpago 3? Não, intervalo)
+                ("21:12", "Fogo", "Relâmpago"),       # 10 Fogo, Relâmpago (Fogo 2 seguidas)
+                ("21:20", "Esmeralda", "Dourada"),    # 11 Esmeralda, Dourada
+                ("21:28", "Dourada", "Relâmpago"),    # 12 Dourada, Relâmpago
             ]
             for horario, time_a, time_b in jogos:
                 partida = Partida(horario=horario, time_a=time_a, time_b=time_b)
