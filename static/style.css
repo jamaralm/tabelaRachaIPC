@@ -1,48 +1,72 @@
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --success-bg: #d4edda;
+    --error-bg: #f8d7da;
+    --neutral-bg: #f9f9f9;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+    --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-base: 1rem;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f9f9f9;
+    font-family: var(--font);
+    background-color: var(--neutral-bg);
     margin: 0;
-    padding: 20px;
-    color: #333;
+    padding: 1rem;
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: var(--font-base);
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 30px;
-    color: #444;
+    margin-bottom: 2rem;
+    color: #222;
+    font-size: 1.75rem;
 }
 
 form {
-    max-width: 500px;
-    margin: 0 auto 40px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    background-color: var(--card-bg);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
 }
 
 form label {
     display: block;
-    margin-top: 10px;
-    font-weight: bold;
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 form select,
-form input[type="number"] {
+form input[type="number"],
+form input[type="text"] {
     width: 100%;
-    padding: 8px;
-    margin-top: 5px;
+    padding: 0.9rem;
+    margin-top: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 form button {
-    margin-top: 20px;
+    margin-top: 1.5rem;
     width: 100%;
-    padding: 10px;
-    background-color: #007bff;
+    padding: 1rem;
+    background-color: var(--primary-color);
     color: white;
-    font-size: 16px;
+    font-size: 1rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -50,27 +74,32 @@ form button {
 }
 
 form button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-hover);
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background-color: var(--card-bg);
 }
 
 table {
     width: 100%;
+    min-width: 600px; /* garante largura mínima para scroll horizontal */
     border-collapse: collapse;
-    margin-top: 30px;
-    background-color: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 th, td {
-    padding: 12px 10px;
+    padding: 1rem;
     text-align: center;
     border: 1px solid #eee;
+    font-size: 1rem;
+    white-space: nowrap;
 }
 
 th {
-    background-color: #f1f1f1;
+    background-color: #f4f4f4;
     font-weight: bold;
 }
 
@@ -79,23 +108,49 @@ tr:nth-child(even) {
 }
 
 tr.primeiro {
-    background-color: #d4edda !important;
+    background-color: var(--success-bg) !important;
     font-weight: bold;
 }
 
 tr.ultimo {
-    background-color: #f8d7da !important;
+    background-color: var(--error-bg) !important;
 }
 
 a {
     display: block;
     text-align: center;
-    margin-top: 30px;
-    color: #007bff;
+    margin-top: 2rem;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: bold;
+    font-size: 1rem;
 }
 
 a:hover {
     text-decoration: underline;
+}
+
+/* -------- Desktop Enhancements (min-width) -------- */
+@media (min-width: 768px) {
+    body {
+        padding: 2rem;
+        font-size: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    form {
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .table-container {
+        border-radius: var(--radius);
+    }
+
+    th, td {
+        font-size: 0.95rem;
+    }
 }

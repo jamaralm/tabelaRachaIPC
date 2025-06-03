@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Partidas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        let partidas = [];
+
+        function adicionarPartida() {
+            const horario = document.getElementById('horario').value;
+            const timeA = document.getElementById('time_a').value;
+            const timeB = document.getElementById('time_b').value;
+
+            if (!horario || !timeA || !timeB) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            partidas.push({ horario, time_a: timeA, time_b: timeB });
+            atualizarLista();
+            limparCampos();
+        }
+
+        function atualizarLista() {
+            const lista = document.getElementById('listaPartidas');
+            lista.innerHTML = '';
+
+            partidas.forEach((p, i) => {
+                const item = document.createElement('li');
+                item.textContent = `${p.horario} - ${p.time_a} vs ${p.time_b}`;
+                lista.appendChild(item);
+            });
+
+            // Atualiza o campo oculto com a lista em JSON
+            document.getElementById('partidasInput').value = JSON.stringify(partidas);
+        }
+
+        function limparCampos() {
+            document.getElementById('horario').value = '';
+            document.getElementById('time_a').value = '';
+            document.getElementById('time_b').value = '';
+        }
+    </script>
+</head>
+<body>
+    <h1>Adicionar Partidas</h1>
+
+    <div>
+        <label>Horário:</label>
+        <input type="text" id="horario" placeholder="ex: 18:00"><br>
+
+        <label>Time A:</label>
+        <input type="text" id="time_a" placeholder="ex: Flamengo"><br>
+
+        <label>Time B:</label>
+        <input type="text" id="time_b" placeholder="ex: Vasco"><br><br>
+
+        <button type="button" onclick="adicionarPartida()">Adicionar Partida</button>
+    </div>
+
+    <h2>Partidas na lista:</h2>
+    <ul id="listaPartidas"></ul>
+
+    <form method="POST" action="/adicionarPartidas">
+        <!-- Campo oculto com todas as partidas em JSON -->
+        <input type="hidden" name="partidas" id="partidasInput">
+        <button type="submit">Salvar Todas as Partidas</button>
+    </form>
+</body>
+</html>
