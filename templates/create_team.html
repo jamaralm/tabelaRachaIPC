@@ -1,0 +1,34 @@
+<html>
+	<head>
+		<title>Add Team</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	</head>
+	<body>
+		<form method="POST">
+			<h1>Criar Time</h1>
+			<label for="team-name">Team Name: </label>
+			<input type="text" id="team-name" name="team-name">
+			<input type="submit" value="Create Team" class="submit-button"> 
+			{% with messages = get_flashed_messages() %}
+			    {% if messages %}
+			        {% for message in messages%}
+				    <p style="color: green;">{{ context.msg }}</p>
+				{% endfor%}
+			    {% endif %}
+			{% endwith %}
+		
+		</form>
+
+		<h2>Times cadastrados: {{ context.team_list|length }}</h2>
+		{% for team in context.team_list %}
+		<div class="team-card">
+			<h2>{{ team.team_name }}</h2>
+			<form method="POST" action="/removerTime">
+				<input type="hidden" name="team_name" value="{{ team.team_name}}">
+				<input type="submit" value="Remover Time" class="submit-button">
+			</form>
+		</div>
+		{% endfor %}
+		</div>
+	</body>
+</html>

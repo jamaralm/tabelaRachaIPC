@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Registrar Resultado de Partida</h1>
+    {% if times %}
     <form action="{{ url_for('adicionar_resultado') }}" method="post">
         <label for="time1">Time 1:</label>
         <select name="time1" required>
@@ -24,8 +25,12 @@
         </select>
         <input type="number" name="gols2" min="0" required>
 
-        <button type="submit">Registrar Resultado</button>
+        <button type="submit" class="submit-button">Registrar Resultado</button>
     </form>
+    {% else %}
+    <h1>Sem Times Cadastrados!</h1>
+    <a href="{{ url_for('create_teams_view') }}">Criar Time</a>
+    {% endif %}
 
     <br>
     <a href="{{ url_for('tabela') }}">Ver Tabela de Classificação</a>

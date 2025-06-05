@@ -19,7 +19,22 @@ def create_tables(db):
 
         resultado = db.relationship('Resultado', backref='partida', uselist=False)
     
-    return Resultado, Partida
+    class Time(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        team_name = db.Column(db.String(50), nullable=False)
+        team_total_matches = db.Column(db.Integer, nullable=True)
+        team_total_goals = db.Column(db.Integer, nullable=True)
+        team_total_wins = db.Column(db.Integer, nullable=True)
+        team_total_losses = db.Column(db.Integer, nullable=True)
+        
+        def __init__(self, team_name):
+            self.team_name = team_name
+
+    return Resultado, Partida, Time
+
+'''
+    CRUD TABLE FUNCTIONS
+'''
 
 def clear_partida_table(db, Partida):
     try:
@@ -35,6 +50,15 @@ def clear_resultado_table(db, Resultado):
         db.session.query(Resultado).delete()
         db.session.commit()
         print("Tabela PARTIDA limpa com sucesso!")
+    except Exception as e:
+        db.session.rollback()
+        print(f"EXCEPTION: {e}")
+
+def clear_time_table(db, Time):
+    try:
+        db.session.query(Time).delete()
+        db.session.commit()
+        print("Tabela TIME limpa com sucesso!")
     except Exception as e:
         db.session.rollback()
         print(f"EXCEPTION: {e}")

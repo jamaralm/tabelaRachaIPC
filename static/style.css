@@ -60,7 +60,7 @@ form input[type="text"] {
     font-size: 1rem;
 }
 
-form button {
+.submit-button {
     margin-top: 1.5rem;
     width: 100%;
     padding: 1rem;
@@ -73,7 +73,7 @@ form button {
     transition: background-color 0.3s;
 }
 
-form button:hover {
+.submit-button:hover {
     background-color: var(--primary-hover);
 }
 
@@ -128,6 +128,12 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+p {
+    align-self: center;
+    color: black;
+    font-size: 16px;
 }
 
 /* -------- Desktop Enhancements (min-width) -------- */

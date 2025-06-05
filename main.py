@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from utils.db import config_database, create_tables, clear_partida_table, clear_resultado_table
 from utils.table_functions import calculate_table
@@ -6,18 +6,21 @@ import json
 
 # Configuração da aplicação
 app = Flask(__name__)
+app.secret_key = "rachaIPC"
 config_database(app)
 db = SQLAlchemy(app)
 
-# Times pré-cadastrados
-TIMES = ["Relâmpago", "Fogo", "Esmeralda", "Dourada", "Imperial"]
-
 # Criação das tabelas Resultado e Partida
-Resultado, Partida = create_tables(db)
+Resultado, Partida, Time = create_tables(db)
 
 # Página inicial com partidas pendentes
 @app.route('/')
 def index():
+    TIMES = [time.team_name for time in Time.query.all()]
+    
+    if len(TIMES) == 0:
+        TIMES = False
+
     partidas_pendentes = Partida.query.filter_by(resultado_id=None).all()
     return render_template('index.html', times=TIMES, partidas=partidas_pendentes)
 
@@ -87,6 +90,46 @@ def add_matches_view():
         db.session.commit()
     return render_template('add_matches.html')
 
+@app.route('/criarTime', methods=['GET', 'POST'])
+def create_team_view():
+    if request.method == "POST":
+        new_team_name = request.form['team-name']
+        new_team = Time(team_name=new_team_name)
+        
+        existing_team = db.session.query(Time).filter(Time.team_name == new_team_name).first()
+        
+        if existing_team:
+            flash("TEAM ALREADY EXISTS!")
+        else:
+            flash("TEAM CREATED!")
+            db.session.add(new_team)
+            db.session.commit()
+
+        return redirect(url_for('create_team_view'))
+
+    context = {
+            'team_list': Time.query.all(),
+    }
+
+    return render_template('create_team.html', context=context)
+
+@app.route('/removerTime', methods=["POST"])
+def remove_team():
+    team_to_remove = request.form['team_name']
+    team = db.session.query(Time).filter(Time.team_name == team_to_remove).first()
+
+    if team:
+        db.session.delete(team)
+        db.session.commit()
+        flash(f"Time {team_to_remove} removido com sucesso!")
+    else:
+        flash(f"Time {team_to_remove} não encontrado!")
+
+    context = {
+            'team_list': Time.query.all()
+    }
+
+    return redirect(url_for('create_team_view'))
 # Execução da aplicação
 if __name__ == '__main__':
     with app.app_context():
